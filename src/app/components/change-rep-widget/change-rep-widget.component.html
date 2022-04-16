@@ -1,0 +1,71 @@
+<div class="uk-width-1-1 uk-background-primary wallet-bar uk-animation-slide-left" style="background: #FFF;" *ngIf="representatives.length">
+  <div class="uk-margin-left" style="padding-top: 0; padding-bottom: 6px; color: #FFF;">
+    <div uk-grid>
+      <div class="uk-width-1-1">
+
+        <span style="cursor:pointer" class="uk-text-danger" (click)="showModal()" uk-tooltip title="Some of your representatives should be changed - click to view details">
+          <span uk-icon="icon: warning" class="uk-text-top"></span> <span class="uk-text-bottom"> 更新代表</span>
+        </span>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="change-rep-modal" class="uk-flex-top uk-modal-container" uk-modal>
+  <div class="uk-modal-dialog">
+    <div class="uk-modal-header">
+      <h2 class="uk-modal-title">推荐的代表变更</h2>
+    </div>
+    <div class="uk-modal-body">
+      <div class="uk-alert-primary uk-text-center" uk-alert>
+        您的代表代表您对交易进行投票以保护 FFD 网络.<br>
+        通过更改以下代表，您将帮助分散网络
+      </div>
+
+      <ul class="" uk-accordion="multiple: true;" >
+        <li *ngFor="let rep of representatives; let i = index" class="uk-open" style="margin-top: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 3px;">
+          <a class="uk-accordion-title uk-text-truncate" href="#" style="padding-left: 5px; padding-bottom: 5px;"><span *ngIf="rep.label" class="uk-margin-small-right uk-label uk-label-danger">{{ rep.label }}</span> {{ rep.account | squeeze }}</a>
+
+          <div class="uk-accordion-content" style="margin-top: 0; border-top: 1px dotted #ccc;">
+            <ul style="margin-top: 10px; margin-bottom: 10px;" class="uk-text-danger">
+              <li *ngIf="!rep.status.online">代表离线</li>
+              <li *ngIf="rep.status.highWeight">代表具有较高的投票权重 (>2%)</li>
+              <li *ngIf="rep.status.warn">代表被标记为避免</li>
+            </ul>
+
+            <table class="uk-table uk-table-striped uk-table-small" style="margin-top: 0;">
+              <tbody>
+                <tr *ngFor="let account of rep.accounts">
+                  <td class="uk-width-3-4">
+                    <span *ngIf="account.addressBookName" class="uk-margin-small-right uk-label uk-label-default">{{ account.addressBookName }}</span>
+                    {{ account.id | squeeze }}
+                  </td>
+                  <td class="uk-width-1-4">{{ account.balance | rai:'mnano' }}</td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+        </li>
+      </ul>
+
+      <p class="uk-text-center uk-text-small uk-text-muted">要绕过此警告，请将您的代表作为受信任的代表添加到您的已知代表列表中</p>
+
+    </div>
+    <div class="uk-modal-footer">
+      <div uk-grid>
+        <div class="uk-width-1-2 uk-text-left">
+          <button class="uk-button uk-button-danger" type="button" (click)="closeModal()">取消</button>
+
+        </div>
+        <div class="uk-width-1-2 uk-text-right">
+          <button class="uk-button uk-button-primary" type="button" (click)="changeReps()">更改代表</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,31 @@
+import { Injectable } from '@angular/core';
+import {NotificationService} from "./notification.service";
+
+@Injectable()
+export class NodeService {
+
+  node = {
+    status: null, // null - loading, false - offline, true - online
+  };
+
+  constructor(private notifications: NotificationService) { }
+
+  setOffline() {
+    if (this.node.status === false) return; // Already offline
+    this.node.status = false;
+
+    this.notifications.sendError(`无法连接到 FFD 节点，您的余额可能不准确！`, { identifier: 'node-offline', length: 0 });
+  }
+
+  setOnline() {
+    if (this.node.status) return; // Already online
+
+    this.node.status = true;
+    this.notifications.removeNotification('node-offline');
+  }
+
+  setLoading() {
+    this.node.status = null;
+  }
+
+}

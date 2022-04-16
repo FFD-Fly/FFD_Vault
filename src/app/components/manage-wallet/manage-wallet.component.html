@@ -1,0 +1,105 @@
+<div class="uk-animation-slide-left-small" uk-grid>
+  <div class="uk-width-1-1">
+    <h2>管理钱包</h2>
+
+    <div class="uk-card uk-card-default uk-margin" *ngIf="!walletService.isLedgerWallet()">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title">更改钱包密码</h3>
+      </div>
+      <div class="uk-card-body">
+        <div uk-grid>
+          <div class="uk-width-1-2@s">
+            <input class="uk-input" [(ngModel)]="newPassword" placeholder="新密码" type="password">
+          </div>
+          <div class="uk-width-1-2@s">
+            <input class="uk-input" [(ngModel)]="confirmPassword" placeholder="确认新密码" type="password">
+          </div>
+        </div>
+      </div>
+      <div class="uk-card-footer uk-text-right">
+        <button (click)="changePassword()" class="uk-button uk-button-secondary">更新密码</button>
+      </div>
+    </div>
+
+    <div class="uk-card uk-card-default uk-margin" *ngIf="!walletService.isLedgerWallet()">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title">备用钱包</h3>
+      </div>
+      <div class="uk-card-body">
+        <p *ngIf="wallet.locked">
+          要访问备份选项，请解锁您的钱包.
+        </p>
+        <p *ngIf="!wallet.locked">
+          备份你的钱包助记词, <a title="将助记符复制到剪贴板" ngxClipboard [cbContent]="seedMnemonic()" (cbOnSuccess)="notifications.sendSuccess('Wallet mnemonic copied to clipboard!')" uk-tooltip>点击这里</a> 将其复制到剪贴板.<br>
+          <br>
+          备份你的钱包种子, <a title="将种子复制到剪贴板" ngxClipboard [cbContent]="wallet.seed" (cbOnSuccess)="notifications.sendSuccess('Wallet seed copied to clipboard!')" uk-tooltip>点击这里</a> 将其复制到剪贴板.<br>
+        </p>
+      </div>
+    </div>
+
+    <div class="uk-card uk-card-default uk-margin" *ngIf="!walletService.isLedgerWallet()">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title">导出 FFD 钱包</h3>
+      </div>
+      <div class="uk-card-body">
+        使用此导出工具可简化向其他设备的钱包转移。 您的数据将通过您的密码加密，然后导入新设备上的 FFD 钱包!
+        导出不包含您的通讯录.<br>
+        <div *ngIf="showQRExport" uk-grid>
+          <div class="uk-width-1-1">
+            <hr class="uk-divider-icon">
+          </div>
+
+          <div class="uk-width-1-2@s uk-width-1-4@m">
+            <img [src]="QRExportImg">
+          </div>
+          <div class="uk-width-1-2@s uk-width-3-4@m">
+            扫描任何设备上的二维码以加载您的 FFD 钱包!<br>
+            <br>
+            如果您没有二维码扫描仪，您也可以使用以下 URL 导入您的钱包.<br>
+            <input type="text" class="uk-input" value="{{ QRExportUrl }}"><br>
+            <a title="将导出 URL 复制到剪贴板" ngxClipboard [cbContent]="QRExportUrl" (cbOnSuccess)="notifications.sendSuccess('Wallet export copied to clipboard!')" uk-tooltip>复制到剪贴板</a>
+          </div>
+        </div>
+      </div>
+      <div class="uk-card-footer uk-text-right">
+        <button (click)="exportToFile()" class="uk-button uk-button-secondary">导出为文件</button>
+        <button (click)="exportWallet()" class="uk-button uk-button-secondary">导出二维码</button>
+      </div>
+    </div>
+
+    <div class="uk-card uk-card-default uk-margin">
+      <div class="uk-card-header">
+        <h3 class="uk-card-title">FFD 钱包地址簿</h3>
+      </div>
+      <div class="uk-card-body">
+        使用此工具可以简化在设备之间传输通讯录的过程。 使用以下选项导入或导出您的
+        来自文件或 QR 码/URL 的地址簿。 你的通讯录没有被你的钱包密码加密.
+        <div *ngIf="addressBookShowQRExport" uk-grid>
+          <div class="uk-width-1-1">
+            <hr class="uk-divider-icon">
+          </div>
+
+          <div class="uk-width-1-2@s uk-width-1-4@m">
+            <img [src]="addressBookQRExportImg">
+          </div>
+          <div class="uk-width-1-2@s uk-width-3-4@m">
+            扫描任何设备上的二维码以导入您的 FFD 通讯录!<br>
+            <br>
+            如果您没有二维码扫描仪，您也可以使用以下 URL 导入您的通讯录.<br>
+            <input type="text" class="uk-input" value="{{ addressBookQRExportUrl }}"><br>
+            <a title="将导出 URL 复制到剪贴板" ngxClipboard [cbContent]="addressBookQRExportUrl" (cbOnSuccess)="notifications.sendSuccess('Address book export copied to clipboard!')" uk-tooltip>复制到剪贴板</a>
+          </div>
+        </div>
+      </div>
+      <div class="uk-card-footer uk-text-right">
+        <div class="js-upload uk-text-left" style="display: inline-block;" uk-form-custom>
+          <input type="file" id="import-from-file" (change)="importFromFile($event.target.files)" multiple>
+          <button class="uk-button uk-button-primary" type="button" tabindex="-1">导入通讯录</button>
+        </div>
+        <button (click)="exportAddressBookToFile()" class="uk-button uk-button-secondary">导出为文件</button>
+        <button (click)="exportAddressBook()" class="uk-button uk-button-secondary">导出二维码</button>
+      </div>
+    </div>
+
+  </div>
+</div>

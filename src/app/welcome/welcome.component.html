@@ -1,0 +1,92 @@
+<div uk-grid>
+  <div class="uk-width-1-1 uk-animation-slide-left-small">
+    <div uk-grid class="uk-text-center" style="margin-bottom: 90px;">
+      <div class="uk-width-1-1" style="margin-top: 45px;">
+        <h2>欢迎来到 FFD WEB 钱包！</h2>
+        <span class="uk-text-lead">FFD 是“无附加条件”的开源钱包<a href="https://ffd.one" class="uk-link-text" target="_blank"></a></span><br>
+      </div>
+      <div class="uk-width-1-1" *ngIf="!isConfigured()">
+        <div uk-grid>
+          <div class="uk-width-1-1" style="margin-top: 60px;">
+            <span class="uk-text-small">要开始使用，请选择以下选项来配置您的钱包</span>
+          </div>
+          <div class="uk-width-1-2@m">
+            <button routerLink="/configure-wallet" class="uk-button uk-button-primary uk-button-large">创建一个新钱包</button>
+          </div>
+          <div class="uk-width-1-2@m">
+            <button routerLink="/configure-wallet" [queryParams]="{ import: 1}" class="uk-button uk-button-primary uk-button-large">导入现有钱包</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-1" *ngIf="isConfigured()">
+        <div uk-grid>
+          <div class="uk-width-1-1" style="margin-top: 60px;">
+            <span class="uk-text-small">欢迎回来！ 看起来你的钱包已经配置好了.</span>
+          </div>
+          <div class="uk-width-1-1@m">
+            <button routerLink="/accounts" class="uk-button uk-button-primary uk-button-large">查看我的帐户</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div uk-grid class="uk-margin-top">
+
+      <div class="uk-width-1-1@m">
+        <div class="uk-card uk-card-default uk-card-small">
+          <div class="uk-card-body">
+
+            <ul uk-accordion="">
+              <li class="uk-open">
+
+                <a class="uk-accordion-title uk-link-text" href="#">为什么使用 FFD 钱包?</a>
+                <div class="uk-accordion-content">
+                  <!--FFD is an open source web wallet which makes it incredibly easy to send and receive <a href="https://nano.org" target="_blank">Nano</a> from anywhere in the world.<br>-->
+
+                  <dl class="uk-description-list">
+                    <dt>以安全为中心</dt>
+                    <dd>所有敏感操作仅发生在您的浏览器中 - 您的种子和私钥永远不会通过您的网络发送，也不会以任何格式存储在任何服务器上。 （因此不需要基于服务器的身份验证措施，例如 2FA）</dd>
+                    <dt>“无附加条件”钱包</dt>
+                    <dd>因为没有信息存储在服务器上，所以不需要登录帐户或电子邮件地址。 创建任意数量的钱包并在它们之间轻松切换。</dd>
+                    <dt>任何设备，任何地方</dt>
+                    <dd>使用网络钱包从任何设备发送和接收 FFD，或 <a href="https://github.com/cronoh/nanovault/releases" target="_blank">下载桌面钱包</a> 适用于 Windows/Mac/Linux。</dd>
+                    <dt>有用的功能</dt>
+                    <dd>在地址簿中为您的朋友和您自己的帐户存储标签，以当地货币跟踪您的余额等等！</dd>
+                  </dl>
+                </div>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="uk-width-1-1">
+
+        <hr class="uk-divider-icon">
+
+        <div class="uk-card uk-card-small uk-card-default uk-margin uk-width-1-1">
+          <div class="uk-card-body uk-text-center">
+            FFD 钱包是开源的，所有代码都可以在 <a href="https://github.com/cronoh/nanovault" target="_blank">https://github.com/cronoh/nanovault</a>.<br>
+            请在我们的 GitHub 页面上提交任何反馈或错误报告。 感谢您使用 FFD 钱包！
+          </div>
+        </div>
+
+        <div class="uk-width-1-1">
+          <div class="uk-text-center uk-alert uk-alert-primary" uk-alert>
+            <a class="uk-alert-close" uk-close></a>
+            <strong>没有 FFD，但想看看它使用起来有多快捷方便？</strong><br>
+            <a href="https://nanofaucet.org/" target="_blank"></a> 使用您的 FFD钱包 帐户立即开始！
+          </div>
+        </div>
+
+        <div class="uk-text-center uk-text-small uk-text-truncate">
+          捐款地址: <a [routerLink]="'/send'" [queryParams]="{ to: donationAccount }">{{ donationAccount }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

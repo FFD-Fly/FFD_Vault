@@ -1,0 +1,197 @@
+<div uk-grid>
+  <div class="uk-width-1-1">
+    <div uk-grid>
+      <div class="uk-width-3-5@s">
+        <h2>代表概览</h2>
+      </div>
+      <div class="uk-width-2-5@s uk-text-right">
+        <a routerLink="/manage-representatives" class="uk-button uk-button-secondary">管理已知代表</a>
+      </div>
+    </div>
+
+    <!-- Send Panel -->
+    <div uk-grid class="uk-animation-slide-left-small">
+      <div class="uk-width-1-1">
+
+        <div class="uk-card uk-card-default" *ngIf="!hideOverview">
+          <div class="uk-card-body uk-padding-remove-bottom">
+            <p class="uk-text-lead uk-text-center">您已将投票权重委托给以下代表</p>
+
+
+            <ul class="uk-list uk-list-striped" style="margin-bottom: 0;">
+              <li style="background: #fff; border-bottom: 0;">
+                <div uk-grid style="color: #999; text-transform: uppercase; font-size: .875rem; font-weight: 400;">
+                  <div class="uk-width-1-5">地位</div>
+                  <div class="uk-width-expand">代表</div>
+                  <div class="uk-width-1-4">重量</div>
+                </div>
+              </li>
+            </ul>
+            <ul class="uk-list uk-list-striped" style="margin-top: 0;">
+              <li *ngFor="let rep of representativeOverview">
+                <div uk-grid class="">
+
+                  <div class="uk-width-1-5" [ngClass]="{ 'uk-text-danger': rep.statusText === 'alert', 'uk-text-warning': rep.statusText === 'warn', 'uk-text-success': rep.statusText === 'trusted', 'uk-text-primary': rep.statusText === 'known' }">
+                    <span *ngIf="rep.statusText === 'alert'" uk-tooltip title="这是一个官方代表,或者它的投票权重非常高(10%+)。 建议更换新代表！"><span uk-icon="icon: warning"></span> Change</span>
+                    <span *ngIf="rep.statusText === 'warn'" uk-tooltip title="该代表的投票权重很高(1%+)。 考虑换一个新的代表."><span uk-icon="icon: warning"></span> Change</span>
+                    <span *ngIf="rep.statusText === 'trusted'" uk-tooltip title="此代表被标记为受信任。 无需更改."><span uk-icon="icon: star"></span> Trusted</span>
+                    <span *ngIf="rep.statusText === 'known'" uk-tooltip title="该代表已保存在您的列表中，只要在线，无需更改."><span uk-icon="icon: check"></span> Known</span>
+                    <span *ngIf="rep.statusText === 'none'" uk-tooltip title="此代表未知，请考虑切换到已知代表或将此代表添加到您的列表中"><span uk-icon="icon: question"></span> Unknown</span>
+                  </div>
+                  <div class="uk-width-expand uk-text-truncate" (click)="addSelectedAccounts(rep.accounts)" style="cursor: pointer;" uk-tooltip title="选择正在使用此代表的帐户">
+                    <span class="circle circle-online" *ngIf="rep.status.online" uk-tooltip title="Representative is online"></span>
+                    <span class="circle circle-offline" *ngIf="!rep.status.online" uk-tooltip title="Representative is offline"></span>
+                    <span *ngIf="rep.label">{{ rep.label }}</span> <span *ngIf="!rep.label">{{ rep.id }}</span>
+                  </div>
+                  <div class="uk-width-1-4">
+                    {{ rep.delegatedWeight | rai: 'mnano' }}
+                  </div>
+
+                </div>
+              </li>
+              <li *ngIf="!representativeOverview || !representativeOverview.length" class="uk-text-center">
+                您的账户还没有委托任何投票权重，您必须收到交易才能更改您的代表！
+              </li>
+            </ul>
+            <p class="uk-text-center uk-margin-small-bottom">
+              <small>单击代表以选择委派给它的所有帐户</small>
+            </p>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="uk-width-1-1" *ngIf="representativeOverview.length">
+        <div class="uk-card uk-card-default">
+          <div class="uk-card-body" style="padding-bottom: 0;">
+
+            <p class="uk-text-lead uk-text-center"> 更换您的代表</p>
+
+
+            <div class="uk-form-horizontal">
+
+              <div class="uk-margin">
+                <label class="uk-form-label" for="form-horizontal-select">要更改的帐户</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" [(ngModel)]="changeAccountID" (change)="newAccountID()" id="form-horizontal-select">
+                    <option [value]="null">选择要更改的帐户</option>
+                    <option [value]="'all'">所有帐户</option>
+                    <option *ngFor="let account of wallet.wallet.accounts" [value]="account.id">{{ account.addressBookName ? account.addressBookName + ' - ' : '' }} {{ account.id | squeeze }} ({{ account.balance | rai: settings.settings.displayDenomination }})</option>
+                  </select>
+                  <ul class="uk-list uk-list-striped">
+                    <li *ngFor="let account of selectedAccounts">
+                      <div uk-grid>
+                        <div class="uk-width-5-6 uk-text-truncate">
+                          <span *ngIf="account.addressBookName" class="uk-margin-small-right uk-label uk-label-default">{{ account.addressBookName }}</span> {{ account.id }}
+                        </div>
+                        <div class="uk-width-1-6 uk-text-center" style="padding-left: 0;">
+                          <a (click)="removeSelectedAccount(account)" class="uk-text-danger" title="Remove From List" uk-tooltip><span uk-icon="icon: close;"></span></a>
+                        </div>
+                      </div>
+
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="uk-margin">
+                <label class="uk-form-label" for="form-horizontal-text2">新代表</label>
+                <div class="uk-form-controls">
+                  <div class="uk-inline uk-width-1-1">
+
+
+
+                    <input (blur)="validateRepresentative()" (keyup)="searchRepresentatives()" (focus)="searchRepresentatives()" [(ngModel)]="toRepresentativeID" class="uk-input" id="form-horizontal-text2" type="text" placeholder="代表账户 ID" #repInput>
+
+                    <div *ngIf="(representativeResults$ | async).length" [hidden]="!showRepresentatives" class="uk-animation-slide-down-small uk-width-1-1 uk-card uk-card-default uk-card-body uk-position-absolute" style="z-index: 15000">
+                      <ul class="uk-nav uk-nav-default">
+                        <li class="uk-nav-header">Representative List Results</li>
+                        <li class="uk-nav-divider"></li>
+                        <li *ngFor="let rep of representativeResults$ | async">
+                          <a (click)="selectRepresentative(rep.id)">
+                            {{ rep.name }}
+                            <span *ngIf="rep.trusted" uk-icon="icon: star;" class="uk-text-success"></span>
+                            <span *ngIf="rep.warn" uk-icon="icon: warning;" class="uk-text-warning"></span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="uk-form-controls" *ngIf="representativeListMatch">
+                  <div class="uk-inline uk-width-1-1">
+                    <span class="uk-label uk-label-danger">{{ representativeListMatch }}</span>
+                  </div>
+                </div>
+
+                <div class="uk-form-controls">
+                  <div class="uk-inline uk-width-1-1 uk-margin-top">
+                    <button class="uk-button uk-button-default uk-button-small" *ngIf="showRecommendedReps" (click)="showRecommendedReps = !showRecommendedReps"><span uk-icon="icon: minus; ratio: 0.8" style="margin-right: 5px;"></span> 隐藏推荐代表</button>
+                    <button class="uk-button uk-button-primary uk-button-small" *ngIf="!showRecommendedReps" (click)="showRecommendedReps = !showRecommendedReps"><span uk-icon="icon: plus; ratio: 0.8" style="margin-right: 5px;"></span> 查看推荐代表</button>
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="showRecommendedReps">
+                <hr>
+
+                <div class="uk-margin">
+                  <p class="uk-text-lead uk-text-center">选择一位推荐的代表 <a href="https://mynano.ninja" target="_blank" class="uk-link-text">MyNanoNinja</a></p>
+                  <!--<h4>Or, Select a recommended representative</h4>-->
+                  <ul class="uk-list uk-list-striped" style="margin-bottom: 0;">
+                    <li style="background: #fff; border-bottom: 0;">
+                      <div uk-grid style="color: #999; text-transform: uppercase; font-size: .875rem; font-weight: 400;">
+                        <div class="uk-width-expand">代表</div>
+                        <div class="uk-width-1-2">重量/正常运行时间/帐户</div>
+                        <!--<div class="uk-width-1-5">Uptime / Delegators</div>-->
+                      </div>
+                    </li>
+                  </ul>
+                  <ul class="uk-list uk-list-striped" style="margin-top: 0;">
+                    <li *ngIf="recommendedRepsLoading" class="uk-text-center">
+                      <span uk-icon="load"></span> 正在加载代表...
+                    </li>
+                    <li *ngIf="recommendedRepsLoading === null" class="uk-text-center">
+                      <span uk-icon="load"></span> 
+                    </li>
+                    <li *ngFor="let rep of recommendedRepsPaginated">
+                      <div uk-grid >
+                        <div class="uk-width-expand" (click)="selectRecommendedRep(rep)" style="cursor: pointer;">
+                          <span class="uk-badge" uk-tooltip title="MyNanoNinja Score" style="margin-right: 4px;">{{ rep.score }}</span> <span uk-tooltip title="Select this representative">{{ rep.alias }}</span>
+
+                        </div>
+                        <div class="uk-width-1-2">
+                          <a [href]="'https://mynano.ninja/account/' + rep.account" target="_blank" style="float: right;" uk-tooltip title="View more details on MyNanoNinja" class="uk-link-muted"><span uk-icon="search"></span></a>
+
+                          <span style="display: inline-block; margin-right: 15px;" uk-tooltip title="Percentage of network voting weight delegated" class="uk-text-primary"><i class="fas fa-balance-scale"></i> {{ rep.percent }}%</span>
+                          <span style="display: inline-block; margin-right: 15px; color: #13ab60;" uk-tooltip title="Uptime since creation" class=""><i class="fas fa-signal"></i> {{ rep.uptime.toFixed(2) }}%</span>
+                          <span style="display: inline-block; margin-right: 10px;" uk-tooltip title="Number of accounts delegating voting weight"><i class="fas fa-users"></i> {{ rep.delegators }}</span>
+
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                  <a href="https://mynano.ninja/active" target="_blank" style="float: right;" class="uk-link-muted" uk-tooltip title="查看所有经过验证的代表 MyNanoNinja">查看全部</a>
+                  <ul class="uk-pagination uk-flex-center">
+                    <li><a (click)="previousReps()" uk-tooltip title="上一页"><span uk-pagination-previous></span></a></li>
+                    <li>显示 {{ (currentRepPage * repsPerPage)+ 1 }} - {{ (currentRepPage * repsPerPage)+ repsPerPage }} of {{ recommendedReps.length }} 代表</li>
+                    <li><a (click)="nextReps()" uk-tooltip title="下一页"><span uk-pagination-next></span></a></li>
+                  </ul>
+                </div>
+
+              </div>
+
+
+            </div>
+          </div>
+          <div class="uk-card-footer">
+            <button class="uk-button uk-button-primary uk-width-1-1" type="button" (click)="changeRepresentatives()" *ngIf="!changingRepresentatives"> 更新代表</button>
+            <button class="uk-button uk-button-primary uk-width-1-1 uk-disabled" type="button" *ngIf="changingRepresentatives"><span uk-spinner></span> 更新代表...</button>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>

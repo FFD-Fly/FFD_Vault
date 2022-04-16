@@ -1,0 +1,386 @@
+import { Component, OnInit } from '@angular/core';
+import {WalletService} from "../../services/wallet.service";
+import {NotificationService} from "../../services/notification.service";
+import {AppSettingsService} from "../../services/app-settings.service";
+import {PriceService} from "../../services/price.service";
+import {PowService} from "../../services/pow.service";
+import {WorkPoolService} from "../../services/work-pool.service";
+import {AddressBookService} from "../../services/address-book.service";
+import {ApiService} from "../../services/api.service";
+import {LedgerService, LedgerStatus} from "../../services/ledger.service";
+import BigNumber from "bignumber.js";
+import {WebsocketService} from "../../services/websocket.service";
+import {NodeService} from "../../services/node.service";
+import {UtilService} from "../../services/util.service";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+import {RepresentativeService} from "../../services/representative.service";
+
+@Component({
+  selector: 'app-configure-app',
+  templateUrl: './configure-app.component.html',
+  styleUrls: ['./configure-app.component.css']
+})
+export class ConfigureAppComponent implements OnInit {
+  wallet = this.walletService.wallet;
+
+  denominations = [
+    { name: 'FFD (1 ffd)', value: 'mnano' },
+    // { name: 'knano (0.001 Mnano)', value: 'knano' },
+    // { name: 'nano (0.000001 Mnano)', value: 'nano' },
+  ];
+  selectedDenomination = this.denominations[0].value;
+
+  storageOptions = [
+    { name: 'Browser Local Storage', value: 'localStorage' },
+    { name: 'None', value: 'none' },
+  ];
+  selectedStorage = this.storageOptions[0].value;
+
+  currencies = [
+    { name: 'None', value: '' },
+    { name: 'USD - US Dollar', value: 'USD' },
+    { name: 'BTC - Bitcoin', value: 'BTC' },
+    { name: 'AUD - Australian Dollar', value: 'AUD' },
+    { name: 'BRL - Brazilian Real', value: 'BRL' },
+    { name: 'CAD - Canadian Dollar', value: 'CAD' },
+    { name: 'CHF - Swiss Franc', value: 'CHF' },
+    { name: 'CLP - Chilean Peso', value: 'CLP' },
+    { name: 'CNY - Chinese Yuan', value: 'CNY' },
+    { name: 'CZK - Czech Koruna', value: 'CZK' },
+    { name: 'DKK - Danish Krown', value: 'DKK' },
+    { name: 'EUR - Euro', value: 'EUR' },
+    { name: 'GBP - British Pound', value: 'GBP' },
+    { name: 'HKD - Hong Kong Dollar', value: 'HKD' },
+    { name: 'HUF - Hungarian Forint', value: 'HUF' },
+    { name: 'IDR - Indonesian Rupiah', value: 'IDR' },
+    { name: 'ILS - Israeli New Shekel', value: 'ILS' },
+    { name: 'INR - Indian Rupee', value: 'INR' },
+    { name: 'JPY - Japanese Yen', value: 'JPY' },
+    { name: 'KRW - South Korean Won', value: 'KRW' },
+    { name: 'MXN - Mexican Peso', value: 'MXN' },
+    { name: 'MYR - Malaysian Ringgit', value: 'MYR' },
+    { name: 'NOK - Norwegian Krone', value: 'NOK' },
+    { name: 'NZD - New Zealand Dollar', value: 'NZD' },
+    { name: 'PHP - Philippine Piso', value: 'PHP' },
+    { name: 'PKR - Pakistani Rupee', value: 'PKR' },
+    { name: 'PLN - Polish Zloty', value: 'PLN' },
+    { name: 'RUB - Russian Ruble', value: 'RUB' },
+    { name: 'SEK - Swedish Krona', value: 'SEK' },
+    { name: 'SGD - Singapore Dollar', value: 'SGD' },
+    { name: 'THB - Thai Baht', value: 'THB' },
+    { name: 'TRY - Turkish Lira', value: 'TRY' },
+    { name: 'TWD - New Taiwan Dollar', value: 'TWD' },
+    { name: 'ZAR - South African Rand', value: 'ZAR' },
+  ];
+  selectedCurrency = this.currencies[0].value;
+
+  inactivityOptions = [
+    { name: 'Never', value: 0 },
+    { name: '1 Minute', value: 1 },
+    { name: '5 Minutes', value: 5 },
+    { name: '15 Minutes', value: 15 },
+    { name: '30 Minutes', value: 30 },
+    { name: '1 Hour', value: 60 },
+    { name: '6 Hours', value: 360 },
+  ];
+  selectedInactivityMinutes = this.inactivityOptions[4].value;
+
+  powOptions = [
+    { name: 'Best Option Available', value: 'best' },
+    { name: 'Client Side - WebGL [Recommended] (Chrome/Firefox)', value: 'clientWebGL' },
+    { name: 'Client Side - CPU', value: 'clientCPU' },
+    { name: 'Server - NanoVault Server', value: 'server' },
+  ];
+  selectedPoWOption = this.powOptions[0].value;
+
+  // prefixOptions = [
+  //   { name: 'xrb_', value: 'xrb' },
+  //   { name: 'ffd_', value: 'ffd' },
+  // ];
+  // selectedPrefix = this.prefixOptions[0].value;
+
+  serverOptions = [
+    { name: 'NanoVault Default', value: 'nanovault' },
+    { name: 'NanoCrawler', value: 'nanocrawler' },
+    { name: 'My Nano Ninja', value: 'mynano' },
+    { name: 'Custom', value: 'custom' },
+  ];
+  selectedServer = this.serverOptions[0].value;
+
+  defaultRepresentative = null;
+  representativeResults$ = new BehaviorSubject([]);
+  showRepresentatives = false;
+  representativeListMatch = '';
+
+  serverConfigurations = [
+    // {
+    //   name: 'nanovault',
+    //   api: null,
+    //   ws: null,
+    // },
+    {
+      name: 'nanocrawler',
+      api: 'https://vault.nanocrawler.cc/api/node-api',
+      ws: 'wss://ws.nanocrawler.cc',
+    },
+    {
+      name: 'mynano',
+      api: 'https://vault-api.mynano.ninja/api/node-api',
+      ws: null,
+    },
+  ];
+
+  serverAPI = null;
+  serverNode = null;
+  serverWS = null;
+  minimumReceive = null;
+
+  showServerConfigs = () => this.selectedServer && this.selectedServer === 'custom';
+
+  constructor(
+    private walletService: WalletService,
+    private notifications: NotificationService,
+    private appSettings: AppSettingsService,
+    private addressBook: AddressBookService,
+    private pow: PowService,
+    private api: ApiService,
+    private ledgerService: LedgerService,
+    private websocket: WebsocketService,
+    private workPool: WorkPoolService,
+    private repService: RepresentativeService,
+    private node: NodeService,
+    private util: UtilService,
+    private price: PriceService) { }
+
+  async ngOnInit() {
+    this.loadFromSettings();
+  }
+
+  loadFromSettings() {
+    const settings = this.appSettings.settings;
+
+    const matchingCurrency = this.currencies.find(d => d.value === settings.displayCurrency);
+    this.selectedCurrency = matchingCurrency.value || this.currencies[0].value;
+
+    const matchingDenomination = this.denominations.find(d => d.value == settings.displayDenomination);
+    this.selectedDenomination = matchingDenomination.value || this.denominations[0].value;
+
+    const matchingStorage = this.storageOptions.find(d => d.value == settings.walletStore);
+    this.selectedStorage = matchingStorage.value || this.storageOptions[0].value;
+
+    const matchingInactivityMinutes = this.inactivityOptions.find(d => d.value == settings.lockInactivityMinutes);
+    this.selectedInactivityMinutes = matchingInactivityMinutes ? matchingInactivityMinutes.value : this.inactivityOptions[4].value;
+
+    const matchingPowOption = this.powOptions.find(d => d.value === settings.powSource);
+    this.selectedPoWOption = matchingPowOption ? matchingPowOption.value : this.powOptions[0].value;
+
+    const matchingServerOption = this.serverOptions.find(d => d.value === settings.serverName);
+    this.selectedServer = matchingServerOption ? matchingServerOption.value : this.serverOptions[0].value;
+
+    this.serverAPI = settings.serverAPI;
+    this.serverNode = settings.serverNode;
+    this.serverWS = settings.serverWS;
+
+    this.minimumReceive = settings.minimumReceive;
+    this.defaultRepresentative = settings.defaultRepresentative;
+    if (this.defaultRepresentative) {
+      this.validateRepresentative();
+    }
+  }
+
+  async updateDisplaySettings() {
+    const newCurrency = this.selectedCurrency;
+    // const updatePrefixes = this.appSettings.settings.displayPrefix !== this.selectedPrefix;
+    const reloadFiat = this.appSettings.settings.displayCurrency !== newCurrency;
+    this.appSettings.setAppSetting('显示面额', this.selectedDenomination);
+    this.notifications.sendSuccess(`应用显示设置已成功更新!`);
+
+    if (reloadFiat) {
+      // Reload prices with our currency, then call to reload fiat balances.
+      await this.price.getPrice(newCurrency);
+      this.appSettings.setAppSetting('显示货币', newCurrency);
+      this.walletService.reloadFiatBalances();
+    }
+
+    // if (updatePrefixes) {
+    //   this.appSettings.setAppSetting('displayPrefix', this.selectedPrefix);
+      // Go through accounts?
+      // this.wallet.accounts.forEach(account => {
+      //   account.id = this.util.account.setPrefix(account.id, this.selectedPrefix);
+      // });
+      // this.walletService.saveWalletExport();
+      //
+      // this.addressBook.addressBook.forEach(entry => {
+      //   entry.account = this.util.account.setPrefix(entry.account, this.selectedPrefix);
+      // });
+      // this.addressBook.saveAddressBook();
+    // }
+
+  }
+
+  async updateWalletSettings() {
+    const newStorage = this.selectedStorage;
+    let newPoW = this.selectedPoWOption;
+
+    const resaveWallet = this.appSettings.settings.walletStore !== newStorage;
+    const reloadPending = this.appSettings.settings.minimumReceive != this.minimumReceive;
+
+    if (this.defaultRepresentative && this.defaultRepresentative.length) {
+      const valid = await this.api.validateAccountNumber(this.defaultRepresentative);
+      if (!valid || valid.valid !== '1') {
+        return this.notifications.sendWarning(`默认代表不是有效帐户`);
+      }
+    }
+
+    if (this.appSettings.settings.powSource !== newPoW) {
+      if (newPoW === 'clientWebGL' && !this.pow.hasWebGLSupport()) {
+        this.notifications.sendWarning(`WebGL 支持不可用，将 PoW 设置为 Best`);
+        newPoW = 'best';
+      }
+      if (newPoW === 'clientCPU' && !this.pow.hasWorkerSupport()) {
+        this.notifications.sendWarning(`CPU Worker 支持不可用，将 PoW 设置为 Best`);
+        newPoW = 'best';
+      }
+    }
+
+    const newSettings = {
+      walletStore: newStorage,
+      lockInactivityMinutes: new Number(this.selectedInactivityMinutes),
+      powSource: newPoW,
+      minimumReceive: this.minimumReceive || null,
+      defaultRepresentative: this.defaultRepresentative || null,
+    };
+
+    this.appSettings.setAppSettings(newSettings);
+    this.notifications.sendSuccess(`应用钱包设置已成功更新!`);
+
+    if (resaveWallet) {
+      this.walletService.saveWalletExport(); // If swapping the storage engine, resave the wallet
+    }
+    if (reloadPending) {
+      this.walletService.reloadBalances(true);
+    }
+  }
+
+  async updateServerSettings() {
+    const newSettings = {
+      serverName: this.selectedServer,
+      serverAPI: null,
+      serverNode: null,
+      serverWS: null,
+    };
+
+    // Custom... do some basic validation
+    if (this.serverAPI != null && this.serverAPI.trim().length > 1) {
+      if (this.serverAPI.startsWith('https://') || this.serverAPI.startsWith('http://')) {
+        newSettings.serverAPI = this.serverAPI;
+      } else {
+        return this.notifications.sendWarning(`自定义 API 服务器的地址无效。 确保使用完整地址，即: http://zip.ffd.one/api/node-api`);
+      }
+    }
+
+    if (this.serverNode != null && this.serverNode.trim().length > 1) {
+      if (this.serverNode.startsWith('https://') || this.serverNode.startsWith('http://')) {
+        newSettings.serverNode = this.serverNode;
+      } else {
+        return this.notifications.sendWarning(`自定义节点服务器的地址无效。 确保使用完整地址，即: http://127.0.0.1:7076`);
+      }
+    }
+
+    if (this.serverWS != null && this.serverWS.trim().length > 1) {
+      if (this.serverWS.startsWith('wss://') || this.serverWS.startsWith('ws://')) {
+        newSettings.serverWS = this.serverWS;
+      } else {
+        return this.notifications.sendWarning(`自定义更新服务器的地址无效. 确保使用完整地址，即: ws://link.ffd.one`);
+      }
+    }
+
+    this.appSettings.setAppSettings(newSettings);
+
+    this.notifications.sendSuccess(`服务器设置已成功更新，正在重新连接到后端`);
+
+    this.node.node.status = false; // Directly set node to offline since API url changed.  Status will get set by reloadBalances
+
+    // Reload balances which triggers an api check + reconnect to websocket server
+    await this.walletService.reloadBalances();
+    this.websocket.forceReconnect();
+  }
+
+  searchRepresentatives() {
+    this.showRepresentatives = true;
+    const search = this.defaultRepresentative || '';
+    const representatives = this.repService.getSortedRepresentatives();
+
+    const matches = representatives
+      .filter(a => a.name.toLowerCase().indexOf(search.toLowerCase()) !== -1)
+      .slice(0, 5);
+
+    this.representativeResults$.next(matches);
+  }
+
+  selectRepresentative(rep) {
+    this.showRepresentatives = false;
+    this.defaultRepresentative = rep;
+    this.searchRepresentatives();
+    this.validateRepresentative();
+  }
+
+  validateRepresentative() {
+    setTimeout(() => this.showRepresentatives = false, 400);
+    this.defaultRepresentative = this.defaultRepresentative.replace(/ /g, '');
+    const rep = this.repService.getRepresentative(this.defaultRepresentative);
+
+    if (rep) {
+      this.representativeListMatch = rep.name;
+    } else {
+      this.representativeListMatch = '';
+    }
+  }
+
+  // When changing the Server Config option, prefill values
+  serverConfigChange(newServer) {
+    const custom = this.serverConfigurations.find(c => c.name == newServer);
+    if (custom) {
+      this.serverAPI = custom.api;
+      this.serverWS = custom.ws;
+    }
+  }
+
+  async clearWorkCache() {
+    const UIkit = window['UIkit'];
+    try {
+      await UIkit.modal.confirm('<p style="text-align: center;">您即将删除所有本地缓存的工作量证明<br><br><b>你确定吗?</b></p>');
+      this.workPool.clearCache();
+      this.notifications.sendSuccess(`成功清除工作缓存!`);
+    } catch (err) {}
+  }
+
+  async clearWalletData() {
+    const UIkit = window['UIkit'];
+    try {
+      await UIkit.modal.confirm('<p style="text-align: center;">您即将删除存储在 FFD钱包 中的所有钱包数据!<br><b>确保你有你的种子备份!!</b><br><br><b>你确定吗?</b></p>');
+      this.walletService.resetWallet();
+      this.walletService.removeWalletData();
+
+      this.notifications.sendSuccess(`成功删除所有钱包数据!`);
+    } catch (err) {}
+  }
+
+  async clearAllData() {
+    const UIkit = window['UIkit'];
+    try {
+      await UIkit.modal.confirm('<p style="text-align: center;">您即将删除存储在 FFD钱包 中的所有数据。<br>这包括您的所有钱包数据、您的通讯录和您的应用程序设置!<br><br><b>确保你有你的种子备份!!</b><br><br><b>你确定吗?</b></p>');
+      this.walletService.resetWallet();
+      this.walletService.removeWalletData();
+
+      this.workPool.deleteCache();
+      this.addressBook.clearAddressBook();
+      this.appSettings.clearAppSettings();
+      this.repService.resetRepresentativeList();
+
+      this.loadFromSettings();
+
+      this.notifications.sendSuccess(`已成功删除所有本地存储的数据!`);
+    } catch (err) {}
+  }
+}

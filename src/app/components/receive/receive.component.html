@@ -1,0 +1,88 @@
+<div class="uk-animation-slide-left-small" uk-grid>
+  <div class="uk-width-1-1">
+    <div uk-grid>
+      <div class="uk-width-1-1">
+        <h2>接收 FFD</h2>
+      </div>
+    </div>
+
+    <div uk-grid>
+      <div class="uk-width-1-1">
+        <p>
+          当有人向您发送 FFD 时，您还负责执行接收块以实际接收资金.<br>
+          如果您在收到交易时打开了钱包，这将自动执行.<br>
+          否则，请从下方选择您希望收到的帐户以搜索待处理的交易.
+        </p>
+      </div>
+    </div>
+
+    <div uk-grid>
+      <div class="uk-width-3-4@s">
+        <select class="uk-select" [(ngModel)]="pendingAccountModel">
+          <option [value]="0">All Accounts</option>
+          <option *ngFor="let account of accounts" [value]="account.id">{{ account.id }}</option>
+        </select>
+      </div>
+      <div class="uk-width-1-4@s">
+        <button class="uk-button uk-button-primary uk-width-1-1" (click)="getPending(pendingAccountModel)"> 查找待处理</button>
+      </div>
+      <div class="uk-width-1-1">
+        <div class="uk-card uk-card-default">
+          <table class="uk-table uk-table-striped uk-table-small">
+            <thead>
+            <tr>
+              <th>帐户</th>
+              <th>发件人</th>
+              <th>数量</th>
+              <th>选项</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let block of pendingBlocks">
+              <td class="uk-visible-toggle">
+                <div uk-grid>
+                  <div class="uk-width-expand uk-text-truncate">
+                    <a [routerLink]="'/account/' + block.account" class="uk-link-text" title="查看帐户详细信息" uk-tooltip>
+                      {{ block.account }}
+                    </a>
+                  </div>
+                  <div class="uk-width-auto" style="padding-left: 10px;">
+                    <ul class="uk-hidden-hover uk-iconnav">
+                      <li><a ngxClipboard [cbContent]="block.account" (cbOnSuccess)="copied()" uk-icon="icon: copy" title="复制账户地址" uk-tooltip></a></li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+              <td class="uk-visible-toggle">
+                <div uk-grid>
+                  <div class="uk-width-expand uk-text-truncate">
+                    <a [routerLink]="'/account/' + block.source" class="uk-link-text" title="查看帐户详细信息" uk-tooltip>
+                      {{ block.source }}
+                    </a>
+                  </div>
+                  <div class="uk-width-auto" style="padding-left: 10px;">
+                    <ul class="uk-hidden-hover uk-iconnav">
+                      <li><a ngxClipboard [cbContent]="block.source" (cbOnSuccess)="copied()" uk-icon="icon: copy" title="复制账户地址" uk-tooltip></a></li>
+                    </ul>
+                  </div>
+                </div>
+              </td>
+              <td>{{ block.amount | rai: settings.settings.displayDenomination }}</td>
+              <td class="uk-text-nowrap">
+                <button *ngIf="!block.loading" (click)="receivePending(block)" class="uk-button uk-button-secondary uk-button-small">收到</button>
+                <button *ngIf="block.loading" class="uk-button uk-button-secondary uk-disabled uk-button-small"><span class="uk-margin-right" uk-spinner></span> Loading</button>
+              </td>
+            </tr>
+            <tr *ngIf="!pendingBlocks.length">
+              <td colspan="4" style="text-align: center;">没有待处理的交易</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
