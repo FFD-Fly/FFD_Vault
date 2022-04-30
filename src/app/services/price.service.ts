@@ -5,7 +5,7 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 @Injectable()
 export class PriceService {
   // apiUrl = `https://api.coinmarketcap.com/v1/`;
-  apiUrl = `https://baidu.com`;
+  apiUrl = `https://api.coinmarketcap.com/v1/`;
 
   price = {
     lastPrice: 0.00,
@@ -18,7 +18,7 @@ export class PriceService {
   async getPrice(currency = 'USD') {
     if (!currency) return; // No currency defined, do not refetch
     const convertString = currency !== 'USD' && currency !== 'BTC' ? `?convert=${currency}` : ``;
-    const response: any = await this.http.get(`${this.apiUrl}ticker/ffd/${convertString}`).toPromise();
+    const response: any = await this.http.get(`${this.apiUrl}ticker/feida/${convertString}`).toPromise();
     if (!response || !response.length) {
       return this.price.lastPrice;
     }

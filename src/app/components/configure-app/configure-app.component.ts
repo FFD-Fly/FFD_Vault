@@ -275,7 +275,7 @@ export class ConfigureAppComponent implements OnInit {
       if (this.serverAPI.startsWith('https://') || this.serverAPI.startsWith('http://')) {
         newSettings.serverAPI = this.serverAPI;
       } else {
-        return this.notifications.sendWarning(`自定义 API 服务器的地址无效。 确保使用完整地址，即: http://zip.ffd.one/api/node-api`);
+        return this.notifications.sendWarning(`自定义 API 服务器的地址无效。 确保使用完整地址，即: http://192.168.31.115:8088/api/node-api`);
       }
     }
 
@@ -291,7 +291,7 @@ export class ConfigureAppComponent implements OnInit {
       if (this.serverWS.startsWith('wss://') || this.serverWS.startsWith('ws://')) {
         newSettings.serverWS = this.serverWS;
       } else {
-        return this.notifications.sendWarning(`自定义更新服务器的地址无效. 确保使用完整地址，即: ws://link.ffd.one`);
+        return this.notifications.sendWarning(`自定义更新服务器的地址无效. 确保使用完整地址，即: wss://ws.ffd.one/ws`);
       }
     }
 

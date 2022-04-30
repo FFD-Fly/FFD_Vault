@@ -328,25 +328,15 @@ export class RepresentativeService {
       trusted: true,
     },
     {
-      id: 'ffd_37b4jfub9pyxiptd4twbf79tnbswpo9iu515z8pqk8bbh75y54jqy3zpboc9',
-      name: 'Official Rep 1',
+      id: 'ffd_3p1114twr7znfqarkx7dmg4ub5khxp3p4qkedpcr8t34n4xyori6ad9eg9ff',
+      name: 'Feida Development Fund',
       warn: true,
     },
     {
       id: 'ffd_1aurepm61ji3chxey16wdjuy6ra7f14qwia4cp7oneifp83ioo3hek16mu4t',
       name: 'Official Rep 2',
       warn: true,
-    },
-    {
-      id: 'ffd_1sxbmmqkxxhpuec7ok7eqf6ckdda1rherscgo78w9kxc1zy837aohqcamq5x',
-      name: 'Official Rep 3',
-      warn: true,
-    },
-    {
-      id: 'ffd_3txb1qosdusdd7mducnwj6xdybqf61d4azxg3rhr4wcd8ymy3nju6rrpj9zb',
-      name: 'Official Rep 4',
-      warn: true,
-    },
+    }
     
   ];
 
