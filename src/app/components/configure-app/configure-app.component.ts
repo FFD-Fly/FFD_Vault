@@ -113,18 +113,14 @@ export class ConfigureAppComponent implements OnInit {
   representativeListMatch = '';
 
   serverConfigurations = [
-    // {
-    //   name: 'nanovault',
-    //   api: null,
-    //   ws: null,
-    // },
+   
     {
-      name: 'nanocrawler',
-      api: 'https://vault.nanocrawler.cc/api/node-api',
-      ws: 'wss://ws.nanocrawler.cc',
+      name: 'Feida_Node',
+      api: 'https://zip.ffd.one/api/node-api',
+      ws: 'wss://ws.ffd.one/ws',
     },
     {
-      name: 'mynano',
+      name: 'Feida official',
       api: 'https://vault-api.mynano.ninja/api/node-api',
       ws: null,
     },
@@ -275,7 +271,7 @@ export class ConfigureAppComponent implements OnInit {
       if (this.serverAPI.startsWith('https://') || this.serverAPI.startsWith('http://')) {
         newSettings.serverAPI = this.serverAPI;
       } else {
-        return this.notifications.sendWarning(`自定义 API 服务器的地址无效。 确保使用完整地址，即: http://192.168.31.115:8088/api/node-api`);
+        return this.notifications.sendWarning(`自定义 API 服务器的地址无效。 确保使用完整地址，即: https://zip.ffd.one/api/node-api`);
       }
     }
 

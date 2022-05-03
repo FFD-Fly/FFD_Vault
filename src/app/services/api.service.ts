@@ -15,7 +15,7 @@ export interface NinjaVerifiedRep {
 @Injectable()
 export class ApiService {
   // apiUrl = `http://localhost:9950/api`;
-  apiUrl = `http://192.168.31.115:8088/api`;
+  apiUrl = `https://zip.ffd.one/api`;
   rpcUrl = `${this.apiUrl}/node-api`;
 
   constructor(private http: HttpClient, private node: NodeService, private appSettings: AppSettingsService) { }

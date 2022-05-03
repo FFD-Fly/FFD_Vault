@@ -242,10 +242,10 @@ function getAccountPublicKey(account) {
 }
 
 function setPrefix(account, prefix = 'xrb') {
-  if (prefix === 'ffd') {
-    return account.replace('xrb_', 'ffd_');
+  if (prefix === 'nano') {
+    return account.replace('xrb_', 'nano_');
   } else {
-    return account.replace('ffd_', 'xrb_');
+    return account.replace('nano_', 'xrb_');
   }
 }
 

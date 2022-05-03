@@ -223,10 +223,10 @@
                 <div class="uk-form-controls">
 
                   <div class="uk-inline uk-width-1-1" *ngIf="!showServerConfigs()">
-                    <strong>{{ serverAPI || 'http://192.168.31.115:8088/api/node-api' }}</strong>
+                    <strong>{{ serverAPI || 'https://zip.ffd.one/api/node-api' }}</strong>
                   </div>
                   <div class="uk-inline uk-width-1-1" *ngIf="showServerConfigs()">
-                    <input [(ngModel)]="serverAPI" class="uk-input uk-margin-small-bottom" type="text" placeholder="http://192.168.31.115:8088/api/node-api">
+                    <input [(ngModel)]="serverAPI" class="uk-input uk-margin-small-bottom" type="text" placeholder="https://zip.ffd.one/api/node-api">
                     <span class="uk-text-meta">
                       此服务器必须运行 <a href="https://github.com/cronoh/nanovault-server" target="_blank">FFD 节点服务器</a> 应用程序或与其兼容的 API.<br>
                       应用程序中的时间戳取决于此服务器对它们的访问.
