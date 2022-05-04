@@ -30,9 +30,9 @@
           要访问备份选项，请解锁您的钱包.
         </p>
         <p *ngIf="!wallet.locked">
-          备份你的钱包助记词, <a title="将助记符复制到剪贴板" ngxClipboard [cbContent]="seedMnemonic()" (cbOnSuccess)="notifications.sendSuccess('Wallet mnemonic copied to clipboard!')" uk-tooltip>点击这里</a> 将其复制到剪贴板.<br>
+          备份你的钱包助记词, <a title="将助记符复制到剪贴板" ngxClipboard [cbContent]="seedMnemonic()" (cbOnSuccess)="notifications.sendSuccess('钱包助记词已复制到剪贴板！')" uk-tooltip>点击这里</a> 将其复制到剪贴板.<br>
           <br>
-          备份你的钱包种子, <a title="将种子复制到剪贴板" ngxClipboard [cbContent]="wallet.seed" (cbOnSuccess)="notifications.sendSuccess('Wallet seed copied to clipboard!')" uk-tooltip>点击这里</a> 将其复制到剪贴板.<br>
+          备份你的钱包种子, <a title="将种子复制到剪贴板" ngxClipboard [cbContent]="wallet.seed" (cbOnSuccess)="notifications.sendSuccess('钱包种子复制成功，剪贴到粘贴板！')" uk-tooltip>点击这里</a> 将其复制到剪贴板.<br>
         </p>
       </div>
     </div>
