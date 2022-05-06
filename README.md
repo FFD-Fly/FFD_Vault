@@ -1,3 +1,6 @@
+# github private key
+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
+
 # NanoVault
 
 NanoVault is a fully client-side signing wallet for sending and receiving [Nano](https://github.com/nanocurrency/raiblocks) 
