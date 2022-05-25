@@ -161,7 +161,7 @@
         <ul class="uk-nav uk-nav-default uk-nav-parent-icon left-nav" uk-nav>
           <li routerLink="/accounts" routerLinkActive="uk-active"><a routerLink="/accounts" routerLinkActive="active" class="uk-margin-left">账号</a></li>
           <li><a routerLink="/send" routerLinkActive="active" class="uk-margin-left">发送</a></li>
-          <li *ngIf="walletService.hasPendingTransactions()">
+          <li>
             <div uk-grid>
               <div class="uk-width-3-4">
                 <a routerLink="/receive" routerLinkActive="active" class="uk-margin-left">接受</a>
